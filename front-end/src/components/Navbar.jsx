@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import assets from '../assets/assets'
 import ThemeToggleBtn from './ThemeToggleBtn'
 import { motion } from "motion/react"
+import { Link } from "react-router-dom";
 import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
 const Navbar = ({ theme, setTheme }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -55,10 +56,11 @@ const Navbar = ({ theme, setTheme }) => {
           className="w-5 absolute right-4 top-4 sm:hidden cursor-pointer"
           onClick={() => setSidebarOpen(false)}
         />
-        <a onClick={() => setSidebarOpen(false)} href="#" className="sm:hover:border-b">Home</a>
-        <a onClick={() => setSidebarOpen(false)} href="#services" className="sm:hover:border-b">Services</a>
-        <a onClick={() => setSidebarOpen(false)} href="#our-work" className="sm:hover:border-b">Our Work</a>
-        <a onClick={() => setSidebarOpen(false)} href="#contact-us" className="sm:hover:border-b">Contact Us</a>
+  <a onClick={() => setSidebarOpen(false)} href="#" className="sm:hover:border-b">Home</a>
+  <Link to="/plan" onClick={() => setSidebarOpen(false)} className="sm:hover:border-b">Plans</Link>
+  <Link to="/my-subscriptions" onClick={() => setSidebarOpen(false)} className="sm:hover:border-b">My Subscriptions</Link>
+  
+  <a onClick={() => setSidebarOpen(false)} href="#contact-us" className="sm:hover:border-b">Offers</a>
       </div>
 
       {/* Right Side Buttons */}

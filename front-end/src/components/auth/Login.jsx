@@ -91,7 +91,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "http://localhost:5174/" },
+      options: { redirectTo: "http://localhost:5173/" },
     });
     if (error) {
       alert("Google login error");

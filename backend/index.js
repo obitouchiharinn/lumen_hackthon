@@ -64,6 +64,56 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+app.get('/services', async (req, res) => {
+  const { data, error } = await supabase
+    .from('service')
+    .select('id,title,description,category');
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// service with plans
+app.get('/services-with-plans', async (req, res) => {
+  const { category } = req.query;
+
+  // Fetch services (optionally filter by category)
+  let serviceQuery = supabase.from('service').select('id,title,description,category');
+  if (category && category !== 'All') {
+    serviceQuery = serviceQuery.eq('category', category);
+  }
+  const { data: services, error: serviceError } = await serviceQuery;
+  if (serviceError) {
+    console.error('Service fetch error:', serviceError);
+    return res.status(500).json({ error: serviceError.message });
+  }
+
+  // Debug: log fetched services
+  console.log('Fetched services:', services);
+
+  // Fetch all plans
+  const { data: plans, error: planError } = await supabase
+    .from('plans')
+    .select('id,service_id,name,type,price,currency');
+  if (planError) {
+    console.error('Plan fetch error:', planError);
+    return res.status(500).json({ error: planError.message });
+  }
+
+  // Debug: log fetched plans
+  console.log('Fetched plans:', plans);
+
+  // Attach plans to their services
+  const servicesWithPlans = Array.isArray(services) ? services.map(service => ({
+    ...service,
+    plans: plans.filter(plan => plan.service_id === service.id)
+  })) : [];
+
+  // Debug: log final result
+  console.log('servicesWithPlans:', servicesWithPlans);
+
+  res.json(servicesWithPlans);
+});
+
 
 
 

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 // import { Navigate, useLocation } from "react-router-dom";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import PlanPage from "./pages/PlanPage";
+import MySubscriptions from "./pages/MySubscriptions";
 import Hero from "./components/Hero";
 import TrustedBy from "./components/TrustedBy";
 import Services from "./components/Services";
@@ -115,11 +117,35 @@ const App = () => {
                 <>
                   <Navbar theme={theme} setTheme={setTheme} />
                   <Hero />
-                  <TrustedBy />
+                  {/* <TrustedBy /> */}
                   <Services />
                   <OurWork />
-                  <Teams />
+                  {/* <Teams /> */}
                   <ContactUs />
+                  <Footer theme={theme} />
+                </>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plan"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar theme={theme} setTheme={setTheme} />
+                  <PlanPage />
+                  <Footer theme={theme} />
+                </>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-subscriptions"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar theme={theme} setTheme={setTheme} />
+                  <MySubscriptions />
                   <Footer theme={theme} />
                 </>
               </ProtectedRoute>
