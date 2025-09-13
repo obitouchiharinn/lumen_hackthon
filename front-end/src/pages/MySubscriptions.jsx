@@ -27,7 +27,7 @@ const MySubscriptions = () => {
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .then(({ data, error }) => {
+      .then(({ data }) => {
         setSubscriptions(data || []);
         setLoading(false);
       });
@@ -45,7 +45,6 @@ const MySubscriptions = () => {
     setActionLoading(true);
     setSelectedSub(sub);
     setModalType('upgrade');
-    // Fetch available plans for this service with higher price
     const { data: plans } = await supabase
       .from('plans')
       .select('*')
@@ -53,15 +52,15 @@ const MySubscriptions = () => {
       .gt('price', sub.price)
       .order('price', { ascending: true });
     setAvailablePlans(plans || []);
-  setSelectedPlanId(plans && plans.length > 0 ? String(plans[0].id) : null);
+    setSelectedPlanId(plans && plans.length > 0 ? String(plans[0].id) : null);
     setShowModal(true);
     setActionLoading(false);
   };
+
   const handleDowngrade = async (sub) => {
     setActionLoading(true);
     setSelectedSub(sub);
     setModalType('downgrade');
-    // Fetch available plans for this service with lower price
     const { data: plans } = await supabase
       .from('plans')
       .select('*')
@@ -69,7 +68,7 @@ const MySubscriptions = () => {
       .lt('price', sub.price)
       .order('price', { ascending: false });
     setAvailablePlans(plans || []);
-  setSelectedPlanId(plans && plans.length > 0 ? String(plans[0].id) : null);
+    setSelectedPlanId(plans && plans.length > 0 ? String(plans[0].id) : null);
     setShowModal(true);
     setActionLoading(false);
   };
@@ -81,7 +80,6 @@ const MySubscriptions = () => {
       await supabase.from('subscriptions').delete().eq('id', selectedSub.id);
       setSubscriptions(subscriptions.filter(sub => sub.id !== selectedSub.id));
     } else if ((modalType === 'upgrade' || modalType === 'downgrade') && selectedSub && selectedPlanId) {
-      // Get selected plan details (handle string/number id)
       const plan = availablePlans.find(p => String(p.id) === String(selectedPlanId));
       if (plan) {
         await supabase.from('subscriptions').update({
@@ -92,7 +90,7 @@ const MySubscriptions = () => {
           currency: plan.currency,
           created_at: new Date().toISOString(),
         }).eq('id', selectedSub.id);
-        // Update local state
+
         setSubscriptions(subscriptions.map(sub =>
           sub.id === selectedSub.id
             ? { ...sub, plan_id: plan.id, plan_name: plan.name, price: plan.price, type: plan.type, currency: plan.currency, created_at: new Date().toISOString() }
@@ -133,7 +131,12 @@ const MySubscriptions = () => {
                 <button onClick={() => handleDowngrade(sub)} className="px-5 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white rounded-xl font-semibold shadow transition-all">Downgrade</button>
                 <button onClick={() => handleDelete(sub)} className="px-5 py-2 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white rounded-xl font-semibold shadow transition-all">Delete</button>
               </div>
-      {/* Modal for upgrade/downgrade/delete */}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal (moved outside .map) */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-sm w-full flex flex-col items-center">
@@ -163,9 +166,13 @@ const MySubscriptions = () => {
             )}
             {(modalType === 'upgrade' || modalType === 'downgrade') && selectedSub && (
               <>
-                <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-200">{modalType === 'upgrade' ? 'Upgrade' : 'Downgrade'} Subscription</h3>
+                <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-200">
+                  {modalType === 'upgrade' ? 'Upgrade' : 'Downgrade'} Subscription
+                </h3>
                 {availablePlans.length === 0 ? (
-                  <div className="mb-4 text-gray-700 dark:text-gray-300 text-center">No {modalType === 'upgrade' ? 'higher' : 'lower'} plans available for this service.</div>
+                  <div className="mb-4 text-gray-700 dark:text-gray-300 text-center">
+                    No {modalType === 'upgrade' ? 'higher' : 'lower'} plans available for this service.
+                  </div>
                 ) : (
                   <>
                     <label className="mb-2 text-gray-700 dark:text-gray-300">Select a plan:</label>
@@ -189,7 +196,13 @@ const MySubscriptions = () => {
                     disabled={actionLoading || availablePlans.length === 0}
                     onClick={handleConfirm}
                   >
-                    {actionLoading ? (modalType === 'upgrade' ? 'Upgrading...' : 'Downgrading...') : (modalType === 'upgrade' ? 'Upgrade' : 'Downgrade')}
+                    {actionLoading
+                      ? modalType === 'upgrade'
+                        ? 'Upgrading...'
+                        : 'Downgrading...'
+                      : modalType === 'upgrade'
+                      ? 'Upgrade'
+                      : 'Downgrade'}
                   </button>
                   <button
                     className="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium"
@@ -202,10 +215,6 @@ const MySubscriptions = () => {
               </>
             )}
           </div>
-        </div>
-      )}
-            </div>
-          ))}
         </div>
       )}
     </div>

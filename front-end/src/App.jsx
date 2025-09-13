@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import PlanPage from "./pages/PlanPage";
 import MySubscriptions from "./pages/MySubscriptions";
+import Offers from "./pages/Offers";
 import Hero from "./components/Hero";
 import TrustedBy from "./components/TrustedBy";
 import Services from "./components/Services";
@@ -151,6 +152,18 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/offers"
+            element={
+              <ProtectedRoute>
+                <>
+                  <Navbar theme={theme} setTheme={setTheme} />
+                  <Offers />
+                  <Footer theme={theme} />
+                </>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </BrowserRouter>
@@ -158,4 +171,190 @@ const App = () => {
 };
 
 export default App;
+
+// import React, { useState, useEffect } from "react";
+// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+// import { Toaster } from "react-hot-toast";
+// import { supabase } from "./components/auth/supabaseClient";
+// import assets from "./assets/assets";
+// import { ErrorPage } from "./pages/Error";
+// import Layout from "./components/Layout/Layout";
+// import Auth from "./pages/Auth";
+// import Dashboard from "./pages/Dashboard";
+// import { Settings } from "./pages/settings";
+// import { ProfileForm } from "./components/setting/profile-form";
+// import { AccountForm } from "./components/setting/account-form";
+// import { AppearanceForm } from "./components/setting/appearence-form";
+// import { ThemeProvider } from "@/components/theme-provider";
+// import Plan from "./pages/Plan";
+// // User-facing pages
+// import Navbar from "./components/Navbar";
+// import Hero from "./components/Hero";
+// import TrustedBy from "./components/TrustedBy";
+// import Services from "./components/Services";
+// import OurWork from "./components/OurWork";
+// import Teams from "./components/Teams";
+// import ContactUs from "./components/ContactUs";
+// import Footer from "./components/Footer";
+// import MySubscriptions from "./pages_super/MySubscriptions";
+// import PlanPage from "./pages_super/PlanPage";
+
+// // ProtectedRoute component
+// function ProtectedRoute({ children }) {
+//   const [checking, setChecking] = React.useState(true);
+//   const [token, setToken] = React.useState(null);
+
+//   React.useEffect(() => {
+//     let waited = 0;
+//     const interval = setInterval(() => {
+//       const t = localStorage.getItem("token");
+//       setToken(t);
+//       waited += 500;
+//       if (t || waited >= 5000) {
+//         setChecking(false);
+//         clearInterval(interval);
+//       }
+//     }, 500);
+//     const onStorage = () => {
+//       setToken(localStorage.getItem("token"));
+//     };
+//     window.addEventListener("storage", onStorage);
+//     return () => {
+//       window.removeEventListener("storage", onStorage);
+//       clearInterval(interval);
+//     };
+//   }, []);
+
+//   if (checking) return null;
+//   if (!token) return <Navigate to="/auth" replace />;
+//   return children;
+// }
+
+// const App = () => {
+//   const [user, setUser] = useState(null);
+//   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+//   const [isAdmin, setIsAdmin] = useState(false);
+
+//   useEffect(() => {
+//     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+//       if (event === 'SIGNED_IN' && session) {
+//         setUser(session.user);
+//         // Example: check for admin role in user metadata
+//         setIsAdmin(session.user.user_metadata?.role === "admin");
+//         localStorage.setItem('token', session.access_token);
+//         localStorage.setItem('user_name', session.user.user_metadata?.name || session.user.email || 'User');
+//         localStorage.setItem('user_image', session.user.user_metadata?.avatar_url || assets.profile_icon);
+//         window.dispatchEvent(new Event('storage'));
+//       } else if (event === 'SIGNED_OUT') {
+//         setUser(null);
+//         setIsAdmin(false);
+//         localStorage.removeItem('token');
+//         localStorage.removeItem('user_name');
+//         localStorage.removeItem('user_image');
+//         window.dispatchEvent(new Event('storage'));
+//       } else if (event === 'TOKEN_REFRESHED' && session) {
+//         setUser(session.user);
+//         setIsAdmin(session.user.user_metadata?.role === "admin");
+//       }
+//     });
+
+//     supabase.auth.getSession().then(({ data }) => {
+//       if (data?.session) {
+//         setUser(data.session.user);
+//         setIsAdmin(data.session.user.user_metadata?.role === "admin");
+//         localStorage.setItem('token', data.session.access_token);
+//         localStorage.setItem('user_name', data.session.user.user_metadata?.name || data.session.user.email || 'User');
+//         localStorage.setItem('user_image', data.session.user.user_metadata?.avatar_url || assets.profile_icon);
+//         window.dispatchEvent(new Event('storage'));
+//       } else {
+//         setUser(null);
+//         setIsAdmin(false);
+//       }
+//     });
+
+//     return () => {
+//       listener?.subscription.unsubscribe();
+//     };
+//   }, []);
+
+//   return (
+//     <ThemeProvider>
+//       <BrowserRouter>
+//         <div className="dark:bg-black relative">
+//           <Toaster />
+//           <Routes>
+//             {/* Auth/Login route */}
+//             <Route path="/auth" element={<Auth />} />
+
+//             {/* Admin dashboard routes under /admin */}
+//             <Route
+//               path="/admin"
+//               element={
+//                 <ProtectedRoute>
+//                   <Layout />
+//                 </ProtectedRoute>
+//               }
+//             >
+//               <Route index element={<Dashboard />} />
+//               <Route path="plans" element={<Plan />} />
+//               <Route path="settings" element={<Settings />}>
+//                 <Route index element={<ProfileForm />} />
+//                 <Route path="account" element={<AccountForm />} />
+//                 <Route path="appearance" element={<AppearanceForm />} />
+//               </Route>
+//             </Route>
+
+//             {/* User-facing routes at root */}
+//             <Route
+//               path="/"
+//               element={
+//                 <ProtectedRoute>
+//                   <>
+//                     <Navbar theme={theme} setTheme={setTheme} />
+//                     <Hero />
+//                     <TrustedBy />
+//                     <Services />
+//                     <OurWork />
+//                     <Teams />
+//                     <ContactUs />
+//                     <Footer theme={theme} />
+//                   </>
+//                 </ProtectedRoute>
+//               }
+//             />
+//             <Route
+//               path="/plan"
+//               element={
+//                 <ProtectedRoute>
+//                   <>
+//                     <Navbar theme={theme} setTheme={setTheme} />
+//                     <PlanPage />
+//                     <Footer theme={theme} />
+//                   </>
+//                 </ProtectedRoute>
+//               }
+//             />
+//             <Route
+//               path="/my-subscriptions"
+//               element={
+//                 <ProtectedRoute>
+//                   <>
+//                     <Navbar theme={theme} setTheme={setTheme} />
+//                     <MySubscriptions />
+//                     <Footer theme={theme} />
+//                   </>
+//                 </ProtectedRoute>
+//               }
+//             />
+
+//             {/* Catch-all error route */}
+//             <Route path="*" element={<ErrorPage error={{ status: 404, message: "Page not found" }}/>} />
+//           </Routes>
+//         </div>
+//       </BrowserRouter>
+//     </ThemeProvider>
+//   );
+// };
+
+// export default App;
 

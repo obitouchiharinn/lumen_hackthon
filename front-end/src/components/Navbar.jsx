@@ -59,8 +59,7 @@ const Navbar = ({ theme, setTheme }) => {
   <a onClick={() => setSidebarOpen(false)} href="#" className="sm:hover:border-b">Home</a>
   <Link to="/plan" onClick={() => setSidebarOpen(false)} className="sm:hover:border-b">Plans</Link>
   <Link to="/my-subscriptions" onClick={() => setSidebarOpen(false)} className="sm:hover:border-b">My Subscriptions</Link>
-  
-  <a onClick={() => setSidebarOpen(false)} href="#contact-us" className="sm:hover:border-b">Offers</a>
+  <Link to="/offers" onClick={() => setSidebarOpen(false)} className="sm:hover:border-b">Offers</Link>
       </div>
 
       {/* Right Side Buttons */}
